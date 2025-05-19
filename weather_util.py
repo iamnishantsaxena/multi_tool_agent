@@ -1,6 +1,3 @@
-from google.adk.agents import Agent, LlmAgent
-from google.adk.tools import google_search
-
 import requests
 
 from google.adk.tools import google_search
@@ -124,72 +121,3 @@ def _parse_weather_data(weather_data: dict, city: str) -> str:
       f"Rain: {rain} mm"
   )
   return report
-
-import datetime
-from zoneinfo import ZoneInfo
-
-def get_current_time(city: str) -> dict:
-    """Returns the current time in a specified city.
-
-    Args:
-        city (str): The name of the city for which to retrieve the current time.
-
-    Returns:
-        dict: status and result or error msg.
-    """
-
-    if city.lower() == "new york":
-        tz_identifier = "America/New_York"
-    else:
-        return {
-            "status": "error",
-            "error_message": (
-                f"Sorry, I don't have timezone information for {city}."
-            ),
-        }
-
-    tz = ZoneInfo(tz_identifier)
-    now = datetime.datetime.now(tz)
-    report = (
-        f'The current time in {city} is {now.strftime("%Y-%m-%d %H:%M:%S %Z%z")}'
-    )
-    return {"status": "success", "report": report}
-  
-# from weather import get_weather
-# from time import get_current_time
-
-# Create an instance of the LlmAgent for Weather and Time
-weather_agent = Agent(
-    name="weather_agent",
-    model="gemini-2.0-flash-exp",
-    description=(
-      "Agent to answer questions about the weather and time in a city."
-    ),
-    instruction=(
-      "You are a helpful agent who can answer user questions about the weather and time in a city."
-    ),
-    tools=[get_weather, get_current_time],
-)
-
-search_agent = Agent(
-    model="gemini-2.0-flash-exp", # Required: Specify the LLM 
-    name="question_answer_agent", # Required: Unique agent name
-    description="A helpful assistant agent that can answer questions.",
-    instruction="""Respond to the query using google search""",
-    tools=[google_search], # Provide an instance of the tool
-)
-
-# Create an instance of the LlmAgent for the root agent
-root_agent = Agent(
-    name="root_agent",
-    model="gemini-2.0-flash-exp",
-    description=(
-      "Agent to delegate tasks to other agents based on user queries."
-    ),
-    instruction=(
-      "You are a helpful agent who can delegate user queries to other agents. "
-      "If the user asks about the weather or time, delegate the task to the weather agent. "
-      "If the user asks to search for something, delegate the task to the search agent."
-    ),
-    sub_agents=[search_agent, weather_agent],
-)
