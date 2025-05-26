@@ -1,15 +1,16 @@
 from google.adk.agents import Agent
-from google.adk.tools import google_search, news_search
+from google.adk.tools import google_search
 
 from .weather_util import get_weather
 from .time_util import get_current_time
-from .jd_util import (
-    job_description_entity_extraction_prompt,
+from .jd_prompt import (
+    jd_entity_extraction_prompt,
     resume_extractor_prompt,
     resume_jd_matcher_prompt,
     resume_jd_matcher_summariser_prompt
 )
-
+from .root_prompt import (root_agent_prompt)
+  
 
 # Create an instance of the LlmAgent for Weather and Time
 weather_agent = Agent(
@@ -24,29 +25,20 @@ weather_agent = Agent(
     tools=[get_weather, get_current_time],
 )
 
-search_agent = Agent(
-    model="gemini-2.0-flash-exp", # Required: Specify the LLM 
-    name="question_answer_agent", # Required: Unique agent name
-    description="A helpful assistant agent that can answer questions.",
-    instruction="""Respond to the query using google search""",
-    tools=[google_search], # Provide an instance of the tool
-)
-
-news_agent = Agent(
-    name="news_agent",
+question_answer_agent = Agent(
     model="gemini-2.0-flash-exp",
-    description="Agent to answer questions about current news and events.",
-    instruction="You are a helpful agent who provides news updates.",
-    tools=[news_search],
+    name="question_answer_agent",
+    description="A helpful assistant agent that can answer questions.",
+    instruction="""Respond to the query using google search.""",
+    tools=[google_search],
 )
-
 
 # Create an instance of the LlmAgent for JD and Resume
 jd_extractor_agent = Agent(
     name="jd_extractor_agent",
     description="The agent that extracts the job description from the text",
     model="gemini-2.0-flash-exp",
-    instruction=job_description_entity_extraction_prompt,
+    instruction=jd_entity_extraction_prompt,
     output_key="job_description"
 )
 
@@ -72,4 +64,32 @@ resume_jd_matcher_summariser_agent = Agent(
     model="gemini-2.0-flash-exp",
     instruction=resume_jd_matcher_summariser_prompt,
     output_key="summary"
+)
+
+# Create an instance of the LlmAgent for JD and Resume
+
+jd_resume_agent = Agent(
+    name="jd_resume_agent",
+    model="gemini-2.0-flash-exp",
+    description="Agent to manage job description and resume tasks.",
+    instruction=(root_agent_prompt),
+    sub_agents=[
+        jd_extractor_agent,
+        resume_extractor_agent,
+        resume_jd_matcher_agent,
+        resume_jd_matcher_summariser_agent
+    ],
+)
+
+greeter = Agent(
+    name="greeter",
+    model="gemini-2.0-flash-exp",  # Required: Specify the LLM
+    description="A simple agent that greets the user.",
+    instruction = (
+      root_agent_prompt +
+      "You are a friendly agent that greets the user warmly. "
+      "do not respond to any other queries, just greet the user."
+      ),
+    output_key="greeting",
+    tools=[weather_agent, jd_resume_agent, question_answer_agent] 
 )
