@@ -3,40 +3,36 @@ from multi_tool_agent.sub.agent import (
                         greeter, 
                         weather_agent, 
                         question_answer_agent, 
-                        jd_resume_agent,
+                        # jd_resume_agent,
                         jd_extractor_agent, 
                         resume_extractor_agent, 
                         resume_jd_matcher_agent, 
                         resume_jd_matcher_summariser_agent
                         )
-from .sub.root_prompt import (root_agent_prompt)
-
-
+from .sub.root_prompt_util import (root_agent_prompt)
 
 root_agent = Agent(
-    name="root_agent",
-    model="gemini-2.0-flash-exp",
-    description="Agent to manage tasks and delegate them to other agents.",
-    instruction=(
-        # root_agent_prompt,
-        "You are a task manager agent that delegates tasks to other agents based on user queries."
-        "for greetings, use the greeter agent to greet the user. do not use the greeter agent for any other tasks."
-        "for weather, use the weather agent to get the current weather. "
-        "for search, use the question_answer_agent agent to find information."
-        "for any question, use the question_answer_agent agent to answer questions."
-        "for news, use the question_answer_agent agent to get the latest news."
-        "for job description or resume related tasks, use the jd_resume_agent to handle job description and resume tasks."
-    ),
-    sub_agents=
-    [
-      greeter,
-      question_answer_agent,
-      weather_agent,
-      #jd_resume_agent,
-      jd_extractor_agent,
-      resume_extractor_agent,
-      resume_jd_matcher_agent,
-      resume_jd_matcher_summariser_agent,
+  name="root_agent",
+  model="gemini-2.0-flash-exp",
+  description="Agent to manage tasks and delegate them to other agents.",
+  instruction=(
+      root_agent_prompt +
+      # "You are a task manager agent that delegates tasks to other agents based on user queries."
+      "for greetings, use the greeter agent to greet the user. do not use the greeter agent for any other tasks."
+      "for weather, use the weather agent to get the current weather. "
+      "for search, use the question_answer_agent agent to find information."
+      "for any question, use the question_answer_agent agent to answer questions."
+      "for news, use the question_answer_agent agent to get the latest news."
+      "for job description or resume related tasks, use the jd_resume_agent to handle job description and resume tasks."
+  ),
+  sub_agents=
+  [
+    greeter,
+    question_answer_agent,
+    weather_agent,
+    jd_extractor_agent,
+    resume_extractor_agent,
+    resume_jd_matcher_summariser_agent,
   ],
 )
 
@@ -45,7 +41,7 @@ agent = root_agent
 # Sample prompts for testing each agent
 # 1. Weather Agent
 # Whats the weather like in New York?
-# 2. Search Agent
+# 2. Question and Answer Agent
 # What is the capital of France?
 # 3. News Agent
 # Latest updates on artificial intelligence
