@@ -3,11 +3,7 @@ from multi_tool_agent.sub.agent import (
                         greeter, 
                         weather_agent, 
                         question_answer_agent, 
-                        # jd_resume_agent,
-                        jd_extractor_agent, 
-                        resume_extractor_agent, 
-                        resume_jd_matcher_agent, 
-                        resume_jd_matcher_summariser_agent
+                        jd_resume_coordinator_agent
                         )
 from .sub.root_prompt_util import (root_agent_prompt)
 
@@ -23,16 +19,15 @@ root_agent = Agent(
       "for search, use the question_answer_agent agent to find information."
       "for any question, use the question_answer_agent agent to answer questions."
       "for news, use the question_answer_agent agent to get the latest news."
-      "for job description or resume related tasks, use the jd_resume_agent to handle job description and resume tasks."
+      "For job description or resume related tasks (including matching, analysis, or comparison), "
+      "use the jd_resume_coordinator_agent which will handle the complete workflow including "
+      "extraction and automatic matching when both documents are available."
   ),
-  sub_agents=
-  [
+  sub_agents=[
     greeter,
     question_answer_agent,
     weather_agent,
-    jd_extractor_agent,
-    resume_extractor_agent,
-    resume_jd_matcher_summariser_agent,
+    jd_resume_coordinator_agent,
   ],
 )
 
