@@ -1,34 +1,27 @@
 from google.adk.agents import Agent
+from google.adk.tools.agent_tool import AgentTool
 from multi_tool_agent.sub.agent import (
-                        greeter, 
-                        weather_agent, 
-                        question_answer_agent, 
-                        jd_resume_coordinator_agent
-                        )
+    jd_extractor_agent,
+    resume_extractor_agent,
+    resume_jd_matcher_agent
+)
 from .sub.root_prompt_util import (root_agent_prompt)
 
 root_agent = Agent(
-  name="root_agent",
-  model="gemini-2.0-flash-exp",
-  description="Agent to manage tasks and delegate them to other agents.",
-  instruction=(
-      root_agent_prompt +
-      # "You are a task manager agent that delegates tasks to other agents based on user queries."
-      "for greetings, use the greeter agent to greet the user. do not use the greeter agent for any other tasks."
-      "for weather, use the weather agent to get the current weather. "
-      "for search, use the question_answer_agent agent to find information."
-      "for any question, use the question_answer_agent agent to answer questions."
-      "for news, use the question_answer_agent agent to get the latest news."
-      "For job description or resume related tasks (including matching, analysis, or comparison), "
-      "use the jd_resume_coordinator_agent which will handle the complete workflow including "
-      "extraction and automatic matching when both documents are available."
-  ),
-  sub_agents=[
-    greeter,
-    question_answer_agent,
-    weather_agent,
-    jd_resume_coordinator_agent,
-  ],
+    name="root_agent",
+    description=(
+      "Root agent that coordinates multiple sub-agents for job description and resume processing. "
+      "It can extract job descriptions, extract resumes, and automatically performs matching and summarization when both documents are available."
+    ),
+    model="gemini-2.0-flash-exp",
+    instruction=root_agent_prompt,
+    tools=[
+        AgentTool(agent=jd_extractor_agent),
+        AgentTool(agent=resume_extractor_agent),
+        AgentTool(agent=resume_jd_matcher_agent)
+    ],
+    output_key="match_result",
+    # show_tool_calls=False,
 )
 
 agent = root_agent
