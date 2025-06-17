@@ -22,6 +22,7 @@ source env/bin/activate
 ```bash
 pip install google-agent-development-kit
 ```
+pip install python-magic python-docx PyPDF2
 
 2. Verify installation:
 ```bash

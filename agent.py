@@ -5,7 +5,7 @@ from multi_tool_agent.sub.agent import (
     resume_extractor_agent,
     resume_jd_matcher_agent
 )
-from .sub.root_prompt_util import (root_agent_prompt)
+from .sub.root_prompt import (root_prompt)
 
 root_agent = Agent(
     name="root_agent",
@@ -14,7 +14,8 @@ root_agent = Agent(
       "It can extract job descriptions, extract resumes, and automatically performs matching and summarization when both documents are available."
     ),
     model="gemini-2.0-flash-exp",
-    instruction=root_agent_prompt,
+    model="gemini-1.5-pro-latest",
+    instruction=root_prompt,
     tools=[
         AgentTool(agent=jd_extractor_agent),
         AgentTool(agent=resume_extractor_agent),
