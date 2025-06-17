@@ -173,6 +173,31 @@ resume_extractor_prompt = """
 
 **Output:** You **MUST** produce **ONLY** a single, valid JSON object as your output. There should be **NO** introductory text, concluding remarks, apologies, explanations, or markdown formatting outside the JSON string values.
 
+**Important: Pydantic Model Adherence**
+Your output MUST strictly conform to the Pydantic models defined in `dtypes_common.py`. This means:
+*   **Data Types:** Ensure all fields have the correct data type (String, Integer, Boolean, Array).
+*   **Allowed Values:** Use `Literal` types to restrict values to the allowed set (e.g., "Open to Remote", "Prefers Remote", "Prefers On-site", "Prefers Hybrid", "Not Mentioned").
+*   **Constrained Integers:** Use `conint` to ensure integers fall within the specified range (e.g., years of experience).
+*   **Default Values:** Use the specified default values when information is missing.
+
+**Example:**
+If a candidate's `Remote Work Preference` is not mentioned, use `"Not Mentioned"`. If a certification's `Issuing Body` is not specified, use `"Not Specified"`.
+
+**Skill Validation Logic:**
+Skills MUST be validated against concrete evidence in the resume (work experience, projects). A skill is considered validated only if there is clear evidence of its application in a specific role or project.
+
+**Example:**
+If the resume mentions "Python" in the skills section but there is no mention of Python in the work experience or projects, the skill should NOT be marked as validated.
+
+**Failure Mode:**
+If you cannot extract the required information or if the input is invalid, return a JSON object with an "error" field:
+
+```json
+{
+    "error": "Unable to extract resume information due to [reason]"
+}
+```
+
 **Detailed Extraction Instructions & Schema:**
 
 **1. `Candidate Profile` (Object):**
