@@ -13,7 +13,7 @@ root_agent = Agent(
       "Root agent that coordinates multiple sub-agents for job description and resume processing. "
       "It can extract job descriptions, extract resumes, and automatically performs matching and summarization when both documents are available."
     ),
-    model="gemini-2.0-flash-exp",
+    # model="gemini-2.0-flash-exp",
     model="gemini-1.5-pro-latest",
     instruction=root_prompt,
     tools=[

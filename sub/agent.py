@@ -1,16 +1,15 @@
-from google.adk.agents import Agent
-from google.adk.tools.agent_tool import AgentTool
 import io
 import os
 import docx
 import PyPDF2
 
+from google.adk.agents import Agent
+from google.adk.tools.agent_tool import AgentTool
 from .prompt import (
     jd_entity_extraction_prompt,
     resume_extractor_prompt,
     resume_jd_matcher_helper_prompt,
     resume_jd_matcher_prompt,
-    # jd_resume_coordinator_prompt
 )
 
 # File signature mappings
@@ -21,16 +20,36 @@ FILE_SIGNATURES = {
     b"PK\x03\x04\x14\x00\x06\x00": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # .docx
 }
 
+# Keywords for identifying resume and job descriptions
+RESUME_KEYWORDS = ["Experience", "Education", "Skills", "Summary", "Objective"]
+JD_KEYWORDS = ["Responsibilities", "Requirements", "Qualifications", "Job Description"]
+
 def detect_file_type(file_path):
+    mime_type = None
     with open(file_path, "rb") as f:
         header = f.read(32)  # Read the first 32 bytes
-        for signature, mime_type in FILE_SIGNATURES.items():
+        for signature, mt in FILE_SIGNATURES.items():
             if isinstance(signature, str):
                 if header.startswith(signature.encode()):
-                    return mime_type
+                    mime_type = mt
+                    break
             else:
                 if header.startswith(signature):
-                    return mime_type
+                    mime_type = mt
+                    break
+
+    if mime_type:
+        text = extract_text_from_file(file_path)
+        if text:
+            resume_score = sum(keyword in text for keyword in RESUME_KEYWORDS)
+            jd_score = sum(keyword in text for keyword in JD_KEYWORDS)
+
+            if resume_score > jd_score and resume_score > 1:
+                return "resume"
+            elif jd_score > resume_score and jd_score > 1:
+                return "job_description"
+            else:
+                return mime_type  # if content analysis is inconclusive, return mime type
     return None
 
 def extract_text_from_pdf(file_path):
@@ -52,7 +71,7 @@ def extract_text_from_docx(file_path):
 def extract_text_from_file(file_path):
     file_mime_type = detect_file_type(file_path)
 
-    if file_mime_type == 'application/pdf':
+    if file_mime_type == 'application/pdf' or file_mime_type == 'resume' or file_mime_type == 'job_description':
         return extract_text_from_pdf(file_path)
     elif file_mime_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         return extract_text_from_docx(file_path)
@@ -61,7 +80,7 @@ def extract_text_from_file(file_path):
 
 class ResumeExtractorTool:
     def __init__(self):
-        self.__name__ = "ResumeExtractorTool"
+        # self.__name__ = "ResumeExtractorTool"
         self.name = "resume_file_extractor"
         self.description = "Extracts text from resume files (PDF, DOCX)"
 
@@ -104,7 +123,7 @@ resume_jd_matcher_agent = Agent(
     ),
     model="gemini-2.0-flash-exp",
     instruction=resume_jd_matcher_prompt,
-    tools=[AgentTool(agent=resume_jd_matcher_helper_agent)],
+    # tools=[AgentTool(agent=resume_jd_matcher_helper_agent)], # Removed AgentTool
     output_key="match_result",
     # show_tool_calls=False,
 )
