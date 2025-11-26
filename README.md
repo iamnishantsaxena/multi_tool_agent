@@ -1,10 +1,10 @@
-# Multi Tool Agent
+# Multi Agent Project
 
-A modular Python project for building and running AI-powered agents with support for Google Agent Development Kit, document processing, and custom prompts.
+Modular Python project for building and running AI-powered agents tailored towards doing specific tasks powered by Google Agent Development Kit.
 
 ## Features
 
-- Modular agent architecture
+- Modular multi AI agent architecture
 - Google Agent Development Kit integration
 - Document parsing (PDF, DOCX, etc.)
 - Customizable prompts and utilities
