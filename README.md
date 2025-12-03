@@ -36,10 +36,10 @@ JD-Match-AI/
 │   ├── dtypes_common.py         # Pydantic models for data structures
 │   ├── sub/
 │   │   ├── agent.py             # Sub-agent definitions
-│   │   ├── prompt.py            # Agent instructions and prompts
-│   │   ├── root_prompt.py       # Root agent instructions
-│   │   └── util_resumeExtractor.py  # Resume extraction utilities
-│   └── .env                     # Environment variables (not in repo)
+│   │   ├── prompts.py           # Centralized agent instructions (consolidated)
+│   │   ├── document_extractor.py # File parsing and document classification utility
+│   │   └── __init__.py
+│   └── __init__.py
 ├── requirements.txt             # Python dependencies
 ├── instructions.md              # Detailed setup guide
 └── README.md                    # This file

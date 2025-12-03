@@ -1,15 +1,15 @@
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
-from .prompt import (
+from .prompts import (
     jd_entity_extraction_prompt,
     resume_extractor_prompt,
     resume_jd_matcher_prompt,
 )
-from .util_resumeExtractor import ResumeExtractorTool
+from .document_extractor import DocumentExtractorTool
 from multi_tool_agent.dtypes_common import CandidateResume, JobDescription  # Import Pydantic models
 import json
 
-resume_file_extractor_tool = ResumeExtractorTool()
+resume_file_extractor_tool = DocumentExtractorTool()
 
 def create_extraction_agent(name, description, instruction, model="gemini-2.0-flash-exp", tool=None):
     tools = [tool] if tool else []
